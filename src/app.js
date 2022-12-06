@@ -22,7 +22,8 @@ app.use((request, response, next) => {
 
 const jsonParser = bodyParser.json();
 
-app.get('/.netlify/functions/api/v1/pizzas', cors(), async function(request, response){
+//      /.netlify/functions/api
+app.get('/v1/pizzas', cors(), async function(request, response){
     let statusCode;
     let message;
 
@@ -43,14 +44,14 @@ app.get('/.netlify/functions/api/v1/pizzas', cors(), async function(request, res
 
 });
 
-app.get('/.netlify/functions/api/v1/pizza/:id', cors(), async function(request, response){
+app.get('/v1/pizza/:id', cors(), async function(request, response){
     let id = request.params.id;
     let statusCode;
     let message;
 
     if (id != '' && id != undefined) {
 
-        //Import do arquivos controllerAluno
+        //Import do arquivos controllerTamanhoPizza
         const controllerPizza = require('../controller/controllerPizza.js');
 
         //Retorna todos os alunos existentes no BD
@@ -98,10 +99,10 @@ app.post('/v1/pizza', cors(), jsonParser, async function(request, response){
             //O comando transforma o JSON em String
         if (JSON.stringify(dadosBody) != '{}') {
             
-            //Import do arquivo da controller de aluno
+            //Import do arquivo da controller de tamanho_pizza
             const controllerPizza = require('../controller/controllerPizza.js');
 
-            //Chama a função novoAluno da controller e encaminha os dados do Body
+            //Chama a função novoTamanhoPizza da controller e encaminha os dados do Body
             const novaPizza = await controllerPizza.novaPizza(dadosBody);
 
                 statusCode = novaPizza.status;
@@ -122,6 +123,195 @@ app.post('/v1/pizza', cors(), jsonParser, async function(request, response){
     response.status(statusCode)
     response.json(message)
 
+});
+
+
+
+// ====== END-POINTS DO TAMANHO DE PIZZAS =========
+
+app.get('/v1/tamanhos_pizza', cors(), async function(request, response){
+
+    let statusCode;
+    let message;
+
+    //Import do arquivos controllerTamanhoPizza
+    const controllerTamanhoPizza = require('../controller/controllerTamanhoPizza.js');
+
+    //Retorna todos os alunos existentes no BD
+    const dadosTamanhosPizza = await controllerTamanhoPizza.listarTamanhosPizza();
+
+    //Valida se existe retorno de dados
+    if (dadosTamanhosPizza) {
+        //Status 200
+        statusCode = 200;
+        message = dadosTamanhosPizza;
+    } else {
+        //Status 404
+        statusCode = 404;
+        message = MESSAGE_ERROR.NOT_FOUND_DB;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.get('/v1/tamanho_pizza/:id', cors(), async function(request, response){
+    let id = request.params.id;
+    let statusCode;
+    let message;
+
+    if (id != '' && id != undefined) {
+
+        //Import do arquivos controllerTamanhoPizza
+        const controllerTamanhoPizza = require('../controller/controllerTamanhoPizza.js');
+
+        //Retorna todos os alunos existentes no BD
+        const dadosTamanhoPizza = await controllerTamanhoPizza.buscarTamanhoPizza(id);
+
+        //Valida se existe retorno de dados
+        if (dadosTamanhoPizza) {
+            //Status 200
+            statusCode = 200;
+            message = dadosTamanhoPizza;
+        } else {
+            //Status 404
+            statusCode = 404;
+            message = MESSAGE_ERROR.NOT_FOUND_DB;
+        }
+    } else {
+        statusCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.post('/v1/tamanho_pizza', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    //Recebe um tipo de content-type que foi enviado no header da requisição
+        //application/json
+    headerContentType = request.headers['content-type'];
+
+    // console.log(headerContentType);
+
+    //Validar se o content-type é do tipo application/json
+    if (headerContentType == 'application/json') {
+        //Recebe do corpo da mensagem o conteúdo 
+        let dadosBody = request.body;
+
+        //Realiza uma conversão de dados para conseguir comparar o json vazio
+            //O comando transforma o JSON em String
+        if (JSON.stringify(dadosBody) != '{}') {
+            
+            //Import do arquivo da controller de aluno
+            const controllerTamanhoPizza = require('../controller/controllerTamanhoPizza.js');
+
+            //Chama a função novoTamanhoPizza da controller e encaminha os dados do Body
+            const novoTamanho = await controllerTamanhoPizza.novoTamanhoPizza(dadosBody);
+
+            statusCode = novoTamanho.status;
+            message = novoTamanho.message;
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.put('/v1/tamanho_pizza/:id', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+    let id = request.params.id;
+
+    //Recebe um tipo de content-type que foi enviado no header da requisição
+        //application/json
+    headerContentType = request.headers['content-type'];
+
+    // console.log(headerContentType);
+
+    //Validar se o content-type é do tipo application/json
+    if (headerContentType == 'application/json') {
+        //Recebe do corpo da mensagem o conteúdo 
+        let dadosBody = request.body;
+
+        //Realiza uma conversão de dados para conseguir comparar o json vazio
+            //O comando transforma o JSON em String
+        if (JSON.stringify(dadosBody) != '{}') {
+
+            //Validação do ID na requisição
+            if (id != '' && id != undefined) {
+                
+                //Inserindo o ID no JSON que chegou do corpo da requisição
+                dadosBody.id = id;
+
+                //Import do arquivo da controller de aluno
+                const controllerTamanhoPizza = require('../controller/controllerTamanhoPizza.js');
+
+                //Chama a função novoTamanhoPizza da controller e encaminha os dados do Body
+                const novoTamanhoPizza = await controllerTamanhoPizza.atualizarTamanhoPizza(dadosBody);
+
+                    statusCode = novoTamanhoPizza.status;
+                    message = novoTamanhoPizza.message;
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.REQUIRED_ID;
+            }
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.delete('/v1/tamanho_pizza/:id', cors(), jsonParser, async function(request, response){
+    let stautsCode;
+    let message;
+    let id = request.params.id;
+
+    if (id != '' && id != undefined) {
+        const controllerTamanhoPizza = require('../controller/controllerTamanhoPizza.js');
+
+        const buscarTamanho = await controllerTamanhoPizza.buscarTamanhoPizza(id);
+
+        const excluirTamanho = await controllerTamanhoPizza.excluirTamanhoPizza(id);
+
+        statusCode = excluirTamanho.status;
+        message = excluirTamanho.message;
+    } else {
+        stautsCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
 });
 
 
