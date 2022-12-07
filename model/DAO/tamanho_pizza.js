@@ -71,7 +71,7 @@ const deleteTamanhoPizza = async function(id){
         
         console.log(id);
 
-        let sql = `DELETE FROM tbl_pizza_x_tamanho WHERE id = '${id}'
+        let sql = `DELETE FROM tbl_pizza_x_tamanho WHERE id = '${id}';
                    DELETE FROM tbl_tamanho_pizza WHERE id = '${id}';`;
 
         console.log(sql);

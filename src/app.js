@@ -314,6 +314,73 @@ app.delete('/v1/tamanho_pizza/:id', cors(), jsonParser, async function(request, 
     response.json(message);
 });
 
+// ========== END-POINTS DO TIPO DE PIZZA =========
+
+app.post('/v1/tipo_pizza', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        // console.log(dadosBody);
+
+        if (JSON.stringify(dadosBody) != '{}') {
+            
+            const controllerTipoPizza = require('../controller/controllerTipoPizza.js');
+
+            const novoTipo = await controllerTipoPizza.novoTipoPizza(dadosBody);
+
+            statusCode = novoTipo.status;
+            message = novoTipo.message;
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.get('/v1/tipos_pizza', cors(), async function(request, response){
+
+    let statusCode;
+    let message;
+
+    //Import do arquivos controllerTamanhoPizza
+    const controllerTipoPizza = require('../controller/controllerTipoPizza.js');
+
+    //Retorna todos os alunos existentes no BD
+    const dadosTiposPizza = await controllerTipoPizza.listarTiposPizza();
+
+    //Valida se existe retorno de dados
+    if (dadosTiposPizza) {
+        //Status 200
+        statusCode = 200;
+        message = dadosTiposPizza;
+    } else {
+        //Status 404
+        statusCode = 404;
+        message = MESSAGE_ERROR.NOT_FOUND_DB;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+});
+
 
 
 
