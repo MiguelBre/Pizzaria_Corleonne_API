@@ -69,14 +69,15 @@ const deleteTamanhoPizza = async function(id){
         const {PrismaClient} = require('@prisma/client');
         const prisma = new PrismaClient();
         
-        console.log(id);
+        // console.log(id);
 
-        let sql = `DELETE FROM tbl_pizza_x_tamanho WHERE id = '${id}';
-                   DELETE FROM tbl_tamanho_pizza WHERE id = '${id}';`;
+        let sql = `DELETE FROM tbl_tamanho_pizza WHERE id = '${id}';`;
 
-        console.log(sql);
+        // console.log(sql);
 
         const result = await prisma.$executeRawUnsafe (sql);
+
+        console.log(result);
 
         if (result) {
             return true;

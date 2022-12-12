@@ -381,6 +381,105 @@ app.get('/v1/tipos_pizza', cors(), async function(request, response){
     response.json(message);
 });
 
+app.put('/v1/tipo_pizza/:id', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+    let id = request.params.id;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+
+        let dadosBody = request.body;
+
+
+        if (JSON.stringify(dadosBody) != '{}') {
+
+            if (id != '' && id != undefined) {
+                
+                dadosBody.id = id;
+
+                const controllerTipoPizza = require('../controller/controllerTipoPizza.js');
+
+                const novoTipoPizza = await controllerTipoPizza.atualizarTipoPizza(dadosBody);
+
+                    statusCode = novoTipoPizza.status;
+                    message = novoTipoPizza.message;
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.REQUIRED_ID;
+            }
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.delete('/v1/tipo_pizza/:id', cors(), jsonParser, async function(request, response){
+    let stautsCode;
+    let message;
+    let id = request.params.id;
+
+    if (id != '' && id != undefined) {
+        const controllerTipoPizza = require('../controller/controllerTipoPizza.js');
+
+        const excluirTipo = await controllerTipoPizza.excluirTipoPizza(id);
+
+        statusCode = excluirTipo.status;
+        message = excluirTipo.message;
+    } else {
+        stautsCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.get('/v1/tipo_pizza/:id', cors(), async function(request, response){
+    let id = request.params.id;
+    let statusCode;
+    let message;
+
+    if (id != '' && id != undefined) {
+
+        //Import do arquivos controllerTamanhoPizza
+        const controllerTamanhoPizza = require('../controller/controllerTamanhoPizza.js');
+
+        //Retorna todos os alunos existentes no BD
+        const dadosTamanhoPizza = await controllerTamanhoPizza.buscarTamanhoPizza(id);
+
+        //Valida se existe retorno de dados
+        if (dadosTamanhoPizza) {
+            //Status 200
+            statusCode = 200;
+            message = dadosTamanhoPizza;
+        } else {
+            //Status 404
+            statusCode = 404;
+            message = MESSAGE_ERROR.NOT_FOUND_DB;
+        }
+    } else {
+        statusCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+}); 
 
 
 

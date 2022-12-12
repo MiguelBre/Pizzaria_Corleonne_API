@@ -29,6 +29,76 @@ const novoTipoPizza = async function(tipo_pizza){
     }
 }
 
+const atualizarTipoPizza = async function(tipo_pizza){
+
+    if(tipo_pizza.id == '' || tipo_pizza.id == undefined){
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID};
+    } else if (tipo_pizza.tipo == '' || tipo_pizza.tipo == undefined) {
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELDS};
+    } else {
+
+        const attTipoPizza = require('../model/DAO/tipo_pizza.js');
+        const atualizar = await attTipoPizza.updateTipoPizza(tipo_pizza);
+
+        if (atualizar) {
+            return {status: 200, message: MESSAGE_SUCCESS.UPDATE_ITEM};
+        } else {
+            return {status: 500, message: MESSAGE_ERROR.INTERNAL_ERROR_DB};
+        }
+    }
+}
+
+const excluirTipoPizza = async function(id){
+
+    if (id != '' && id != undefined) {
+        
+        // console.log(id);
+
+        const TipoPizza = await buscarTipoPizza(id);
+
+        // console.log(TipoPizza);
+
+        if (TipoPizza) {
+            const apagarTipo = require('../model/DAO/tipo_pizza.js');
+
+            const result = await apagarTipo.deleteTipoPizza(id);
+
+            // console.log(result);
+
+            if (result) {
+                return {status: 200, message: MESSAGE_SUCCESS.DELETE_ITEM};
+            } else {
+                return {status: 500, message: MESSAGE_ERROR.INTERNAL_ERROR_DB};
+            }
+        } else {
+            return {status: 404, message: MESSAGE_ERROR.NOT_FOUND_DB};
+        }
+    } else {
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID};
+    }
+}
+
+const buscarTipoPizza = async function(id){
+
+    if (id != '' && id != undefined) {
+        
+        let dadosTipoPizzaJSON = {};
+
+        const { selectTipoPizzaByID } = require('../model/DAO/tipo_pizza.js')
+
+        const dadosTipoPizza = await selectTipoPizzaByID(id);
+
+        if (dadosTipoPizza) {
+            dadosTipoPizzaJSON.tipo = dadosTipoPizza;
+            return dadosTipoPizzaJSON;
+        } else {
+            return false;
+        }
+    } else {
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID};
+    }
+}
+
 
 
 
@@ -58,7 +128,9 @@ const listarTiposPizza = async function(){
 
 module.exports = {
     novoTipoPizza,
-    listarTiposPizza
+    listarTiposPizza,
+    atualizarTipoPizza,
+    excluirTipoPizza
 }
 
 

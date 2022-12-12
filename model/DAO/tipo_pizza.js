@@ -29,9 +29,76 @@ const insertTipoPizza = async function(tipo_pizza){
     }
 }
 
+const updateTipoPizza = async function(tipo_pizza){
 
+    try{
 
+        //import da classe prismaClient que é responsável pelas interações com o BD
+        const { PrismaClient } = require('@prisma/client')
 
+        //Instância da classe PrismaClient
+        const prisma = new PrismaClient()
+
+        let sql /* Structure Query Language */ = `UPDATE tbl_tipo_pizza
+                                                  SET
+                                                      tipo = '${tipo_pizza.tipo}'
+                                                  WHERE
+                                                    id = '${tipo_pizza.id}'`;
+        // console.log(sql);
+        //Executa o script SQL no BD
+            //executeRawUnsafe permite encaminhar uma variável contendo o script
+        const result = await prisma.$executeRawUnsafe (sql);
+
+        //Verifica se o script foi executado com sucesso no BD
+        if (result) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch(error){
+        return false;
+    }
+}
+
+const deleteTipoPizza = async function(id){
+    try{
+
+        const {PrismaClient} = require('@prisma/client');
+        const prisma = new PrismaClient();
+        
+        // console.log(id);
+
+        let sql = `DELETE FROM tbl_tipo_pizza WHERE id = ${id};`;
+
+        // console.log(sql);
+
+        const result = await prisma.$executeRawUnsafe (sql);
+
+        if (result) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch(error){
+        return false;
+    }
+}
+
+const selectTipoPizzaByID = async function(id){
+
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+
+    let sql = `select cast(id as float) as id, tipo FROM tbl_tipo_pizza WHERE tbl_tipo_pizza.id = ${id};`;
+    
+    const rsPizzaTipo = await prisma.$queryRawUnsafe(sql);
+
+    if (rsPizzaTipo.length > 0) {
+        return rsPizzaTipo;
+    } else {
+        return false;
+    }
+}
 
 const selectAllTiposPizza = async function() {
     
@@ -56,5 +123,8 @@ const selectAllTiposPizza = async function() {
 
 module.exports = {
     insertTipoPizza,
-    selectAllTiposPizza
+    selectAllTiposPizza,
+    updateTipoPizza,
+    deleteTipoPizza,
+    selectTipoPizzaByID
 }

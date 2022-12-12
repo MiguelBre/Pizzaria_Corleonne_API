@@ -52,11 +52,11 @@ const excluirTamanhoPizza = async function(id){
 
     if (id != '' && id != undefined) {
         
-        console.log(id);
+        // console.log(id);
 
         const tamanhoPizza = await buscarTamanhoPizza(id);
 
-        console.log(tamanhoPizza);
+        // console.log(tamanhoPizza);
 
         if (tamanhoPizza) {
             const apagarTamanho = require('../model/DAO/tamanho_pizza.js');
