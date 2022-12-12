@@ -114,7 +114,6 @@ app.post('/v1/pizza', cors(), jsonParser, async function(request, response){
         }
 
 
-
     } else {
         statsCode = 415;
         message = MESSAGE_ERROR.CONTENT_TYPE;
@@ -480,6 +479,73 @@ app.get('/v1/tipo_pizza/:id', cors(), async function(request, response){
     response.status(statusCode);
     response.json(message);
 }); 
+
+// =============== END-POINTS PRODUTO ==================
+
+app.get('/v1/produtos', cors(), async function(request, response){
+
+    let statusCode;
+    let message;
+
+    //Import do arquivos controllerTamanhoPizza
+    const controllerProduto = require('../controller/controllerProduto.js');
+
+    //Retorna todos os alunos existentes no BD
+    const dadosProdutos = await controllerProduto.listarProdutos();
+
+    //Valida se existe retorno de dados
+    if (dadosProdutos) {
+        //Status 200
+        statusCode = 200;
+        message = dadosProdutos;
+    } else {
+        //Status 404
+        statusCode = 404;
+        message = MESSAGE_ERROR.NOT_FOUND_DB;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.post('/v1/produto', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    headerContentType = request.headers['content-type'];
+
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+            
+            const controllerProduto = require('../controller/controllerProduto.js');
+
+            const newProduto = await controllerProduto.novoProduto(dadosBody);
+
+            statusCode = newProduto.status;
+            message = newProduto.message;
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
 
 
 

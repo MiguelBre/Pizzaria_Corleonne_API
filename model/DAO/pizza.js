@@ -59,49 +59,28 @@ const selectPizzaByID = async function(id){
     }
 }
 
-const insertPizza = async function(){
+const insertPizza = async function(dadosPizza){
 
-    // try{
+    try{
 
-    //     //import da classe prismaClient que é responsável pelas interações com o BD
-    //     const { PrismaClient } = require('@prisma/client')
+        const { PrismaClient } = require('@prisma/client')
+        const prisma = new PrismaClient()
 
-    //     //Instância da classe PrismaClient
-    //     const prisma = new PrismaClient()
+        let sql = `insert into tbl_pizza(imagem, id_produto, id_tipo)
+                    values('${dadosPizza.imagem}', '${dadosPizza.id_produto}', '${dadosPizza.id_tipo}')`;
 
-    //     let sql /* Structure Query Language */ = `insert into tbl_aluno (nome,
-    //                                                                      foto,
-    //                                                                      rg,
-    //                                                                      cpf,
-    //                                                                      email,
-    //                                                                      data_nascimento,
-    //                                                                      sexo,
-    //                                                                      telefone,
-    //                                                                      celular)
-    //                                                                      values(
-    //                                                                         '${aluno.nome}',
-    //                                                                         '${aluno.foto}',
-    //                                                                         '${aluno.rg}',
-    //                                                                         '${aluno.cpf}',
-    //                                                                         '${aluno.email}',
-    //                                                                         '${aluno.data_nascimento}',
-    //                                                                         '${aluno.sexo}',
-    //                                                                         '${aluno.telefone}',
-    //                                                                         '${aluno.celular}')`;
+        const result = await prisma.$executeRawUnsafe (sql);
 
-    //     //Executa o script SQL no BD
-    //         //executeRawUnsafe permite encaminhar uma variável contendo o script
-    //     const result = await prisma.$executeRawUnsafe (sql);
+        if (result) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch(error){
 
-    //     //Verifica se o script foi executado com sucesso no BD
-    //     if (result) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // } catch(error){
-    //     return false;
-    // }
+        return false;
+        
+    }
 
 }
 
