@@ -51,7 +51,7 @@ app.get('/v1/pizza/:id', cors(), async function(request, response){
 
     if (id != '' && id != undefined) {
 
-        //Import do arquivos controllerTamanhoPizza
+        //Import do arquivos controllerProduto
         const controllerPizza = require('../controller/controllerPizza.js');
 
         //Retorna todos os alunos existentes no BD
@@ -544,6 +544,71 @@ app.post('/v1/produto', cors(), jsonParser, async function(request, response){
     response.status(statusCode)
     response.json(message)
 
+});
+
+app.put('/v1/produto/:id', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+    let id = request.params.id;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+
+            if (id != '' && id != undefined) {
+                
+                dadosBody.id = id;
+
+                const controllerProduto = require('../controller/controllerProduto.js');
+
+                const AttProduto = await controllerProduto.atualizarProduto(dadosBody);
+
+                    statusCode = AttProduto.status;
+                    message = AttProduto.message;
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.REQUIRED_ID;
+            }
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.delete('/v1/produto/:id', cors(), jsonParser, async function(request, response){
+    let stautsCode;
+    let message;
+    let id = request.params.id;
+
+    if (id != '' && id != undefined) {
+        const controllerProduto = require('../controller/controllerProduto.js');
+
+        const buscarProduto = await controllerProduto.buscarProduto(id);
+
+        const excluirProduto = await controllerProduto.excluirProduto(id);
+
+        statusCode = excluirProduto.status;
+        message = excluirProduto.message;
+    } else {
+        stautsCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
 });
 
 
