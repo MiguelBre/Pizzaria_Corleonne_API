@@ -647,11 +647,221 @@ app.get('/v1/produto/:id', cors(), async function(request, response){
     response.json(message);
 }); 
 
+// ========= END-POINTS ADMINISTRAÇÃO ============
+
+//Receber o TOKEN encaminhado nas requisições e solicitar a validação
+const verifyJWT = async function(request, response, next){
+
+    //Import da biblioteca para validação do token
+    const jwt = require('../JWT/jwt.js');
+
+    //Recebe o token encaminhado no header da requisição
+    let token = request.headers['x-access-token'];
+
+    //Valida a autenticidade do token
+    const autenticidadeToken = await jwt.validateJWT(token);
+
+    //Verifica se a requisição poderá continuar ou se será encerrada
+    if (autenticidadeToken) {
+        next();
+    } else {
+        return response.status(401).end();
+    }
+
+}
+
+app.post('/v1/admin', verifyJWT, cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    headerContentType = request.headers['content-type'];
+
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+            
+            const controllerAdmin = require('../controller/controllerAdmin.js');
+
+            const newAdmin = await controllerAdmin.novoAdmin(dadosBody);
+
+            statusCode = newAdmin.status;
+            message = newAdmin.message;
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.get('/v1/admins', verifyJWT, cors(), async function(request, response){
+
+    let statusCode;
+    let message;
+
+    const controllerAdmin = require('../controller/controllerAdmin.js');
+
+    const dadosAdmins = await controllerAdmin.listarAdmins();
+
+    if (dadosAdmins) {
+        statusCode = 200;
+        message = dadosAdmins;
+    } else {
+        statusCode = 404;
+        message = MESSAGE_ERROR.NOT_FOUND_DB;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.put('/v1/admin/:id', verifyJWT, cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+    let id = request.params.id;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+
+            if (id != '' && id != undefined) {
+                
+                dadosBody.id = id;
+
+                const controllerAdmin = require('../controller/controllerAdmin.js');
+
+                const AttAdmin = await controllerAdmin.atualizarAdmin(dadosBody);
+
+                    statusCode = AttAdmin.status;
+                    message = AttAdmin.message;
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.REQUIRED_ID;
+            }
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.delete('/v1/admin/:id', verifyJWT, cors(), jsonParser, async function(request, response){
+    let stautsCode;
+    let message;
+    let id = request.params.id;
+
+    if (id != '' && id != undefined) {
+
+        const controllerAdmin = require('../controller/controllerAdmin.js');
+
+        const buscarAdmin = await controllerAdmin.buscarAdmin(id);
+
+        const excluirAdmin = await controllerAdmin.excluirAdmin(id);
+
+        statusCode = excluirAdmin.status;
+        message = excluirAdmin.message;
+    } else {
+        stautsCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.get('/v1/admin/:id', verifyJWT, cors(), async function(request, response){
+    let id = request.params.id;
+    let statusCode;
+    let message;
+
+    if (id != '' && id != undefined) {
+
+        const controllerAdmin = require('../controller/controllerAdmin.js');
+
+        const dadosAdmin = await controllerAdmin.buscarAdmin(id);
+
+        if (dadosAdmin) {
+            statusCode = 200;
+            message = dadosAdmin;
+        } else {
+            statusCode = 404;
+            message = MESSAGE_ERROR.NOT_FOUND_DB;
+        }
+    } else {
+        statusCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+}); 
+
+app.post('/v1/admin/autenticacao', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+
+            const controller = require('../controller/controllerAdmin.js');
+
+            const getDadosAdmin = await controller.autenticacao(dadosBody);
+
+            if (getDadosAdmin) {
+                statusCode = 201;
+                message = getDadosAdmin;
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.NOT_FOUND_DB
+            }
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
 
 
 
 app.listen(8080, function(){
-    console.log('Servidor aguardando requisições')
+    console.log('Servidor aguardando requisições...')
 });
 
 
