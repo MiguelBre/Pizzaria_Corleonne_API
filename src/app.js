@@ -102,7 +102,7 @@ app.post('/v1/pizza', cors(), jsonParser, async function(request, response){
             //Import do arquivo da controller de tamanho_pizza
             const controllerPizza = require('../controller/controllerPizza.js');
 
-            //Chama a função novoTamanhoPizza da controller e encaminha os dados do Body
+            //Chama a função novoProduto da controller e encaminha os dados do Body
             const novaPizza = await controllerPizza.novaPizza(dadosBody);
 
                 statusCode = novaPizza.status;
@@ -610,6 +610,40 @@ app.delete('/v1/produto/:id', cors(), jsonParser, async function(request, respon
     response.status(statusCode);
     response.json(message);
 });
+
+app.get('/v1/produto/:id', cors(), async function(request, response){
+    let id = request.params.id;
+    let statusCode;
+    let message;
+
+    if (id != '' && id != undefined) {
+
+        const controllerProduto = require('../controller/controllerProduto.js');
+
+        //Retorna todos os alunos existentes no BD
+        const dadosProduto = await controllerProduto.buscarProduto(id);
+
+        //Valida se existe retorno de dados
+        if (dadosProduto) {
+            //Status 200
+            statusCode = 200;
+            message = dadosProduto;
+        } else {
+            //Status 404
+            statusCode = 404;
+            message = MESSAGE_ERROR.NOT_FOUND_DB;
+        }
+    } else {
+        statusCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+}); 
 
 
 

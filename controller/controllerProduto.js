@@ -96,7 +96,7 @@ const buscarProduto = async function(id){
         const dadosProduto = await selectProdutoByID(id);
 
         if (dadosProduto) {
-            dadosProdutoJSON.tipo = dadosProduto;
+            dadosProdutoJSON.produto = dadosProduto;
             return dadosProdutoJSON;
         } else {
             return false;
@@ -107,14 +107,10 @@ const buscarProduto = async function(id){
 }
 
 
-
-
-
-
-
 module.exports = {
     novoProduto,
     listarProdutos,
     atualizarProduto,
-
+    excluirProduto,
+    buscarProduto
 }
