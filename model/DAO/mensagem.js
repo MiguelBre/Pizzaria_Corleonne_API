@@ -5,14 +5,14 @@
  * Versão:          1.0
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-const insertTipoMensagem = async function(dadosTipo){
+const insertMensagem = async function(dadosMensagem){
     try {
         
         const { PrismaClient } = require('@prisma/client');
         const prisma = new PrismaClient()
 
-        let sql = `insert into tbl_tipo_mensagem (tipo)
-                    values('${dadosTipo.tipo}');`;
+        let sql = `insert into tbl_mensagem (nome, email, celular, telefone, mensagem, id_tipo)
+                    values('${dadosMensagem.nome}', '${dadosMensagem.email}', '${dadosMensagem.celular}', '${dadosMensagem.telefone}', '${dadosMensagem.mensagem}', '${dadosMensagem.id_tipo}');`;
 
         const result = await prisma.$executeRawUnsafe (sql);
 
@@ -26,22 +26,24 @@ const insertTipoMensagem = async function(dadosTipo){
     }
 }
 
-const selectAllTiposMensagem = async function() {
+const selectAllMensagens = async function() {
     
     const { PrismaClient } = require('@prisma/client')
 
     const prisma = new PrismaClient()
 
-    const rsMensagemTipos = await prisma.$queryRaw `select cast(id as float) as id, tipo from tbl_tipo_mensagem order by id desc`
+    const rsMensagens = await prisma.$queryRaw `select tbl_mensagem.id as idMensagem, tbl_mensagem.nome, tbl_mensagem.email, tbl_mensagem.celular, tbl_mensagem.mensagem, tbl_tipo_mensagem.tipo from tbl_mensagem
+                                                        inner join tbl_tipo_mensagem
+                                                            on tbl_tipo_mensagem.id = tbl_mensagem.id_tipo;`
 
-    if (rsMensagemTipos.length > 0) {
-        return rsMensagemTipos
+    if (rsMensagens.length > 0) {
+        return rsMensagens
     } else {
         return false
     }
 }
 
-const updateTipoMensagem = async function(tipo_mensagem){
+const updateMensagem = async function(dadosMensagem){
 
     try{
 
@@ -51,17 +53,18 @@ const updateTipoMensagem = async function(tipo_mensagem){
         //Instância da classe PrismaClient
         const prisma = new PrismaClient()
 
-        let sql /* Structure Query Language */ = `UPDATE tbl_tipo_mensagem
-                                                  SET
-                                                      tipo = '${tipo_mensagem.tipo}'
-                                                  WHERE
-                                                    id = '${tipo_mensagem.id}'`;
-        // console.log(sql);
-        //Executa o script SQL no BD
-            //executeRawUnsafe permite encaminhar uma variável contendo o script
+        let sql = `UPDATE tbl_mensagem
+                    SET
+                       nome = '${dadosMensagem.nome}',
+                       email = '${dadosMensagem.email}',
+                       celular = '${dadosMensagem.celular}',
+                       mensagem = '${dadosMensagem.mensagem}',
+                       id_tipo = '${dadosMensagem.id_tipo}'
+                     WHERE
+                       id = ${dadosMensagem.id};`;
+
         const result = await prisma.$executeRawUnsafe (sql);
 
-        //Verifica se o script foi executado com sucesso no BD
         if (result) {
             return true;
         } else {
@@ -72,18 +75,13 @@ const updateTipoMensagem = async function(tipo_mensagem){
     }
 }
 
-const deleteTipoMensagem = async function(id){
+const deleteMensagem = async function(id){
     try{
 
         const {PrismaClient} = require('@prisma/client');
         const prisma = new PrismaClient();
         
-        // console.log(id);
-
-        let sql = `DELETE FROM tbl_mensagem WHERE id = ${id};
-                    DELETE FROM tbl_tipo_mensagem WHERE id = ${id};`;
-
-        // console.log(sql);
+        let sql = `DELETE FROM tbl_mensagem WHERE id = ${id};`;
 
         const result = await prisma.$executeRawUnsafe (sql);
 
@@ -97,12 +95,15 @@ const deleteTipoMensagem = async function(id){
     }
 }
 
-const selectTipoMensagemByID = async function(id){
+const selectMensagemByID = async function(id){
 
     const { PrismaClient } = require('@prisma/client');
     const prisma = new PrismaClient();
 
-    let sql = `select cast(id as float) as id, tipo FROM tbl_tipo_mensagem WHERE tbl_tipo_mensagem.id = ${id};`;
+    let sql = `select tbl_mensagem.id as idMensagem, tbl_mensagem.nome, tbl_mensagem.email, tbl_mensagem.celular, tbl_mensagem.mensagem, tbl_tipo_mensagem.tipo from tbl_mensagem
+                    inner join tbl_tipo_mensagem
+                        on tbl_tipo_mensagem.id = tbl_mensagem.id_tipo 
+                    WHERE tbl_tipo_mensagem.id = ${id};`;
     
     const rsMensagemTipo = await prisma.$queryRawUnsafe(sql);
 
@@ -114,9 +115,18 @@ const selectTipoMensagemByID = async function(id){
 }
 
 module.exports = {
-    selectAllTiposMensagem,
-    insertTipoMensagem,
-    updateTipoMensagem,
-    deleteTipoMensagem,
-    selectTipoMensagemByID
+    selectAllMensagens,
+    insertMensagem,
+    updateMensagem,
+    deleteMensagem,
+    selectMensagemByID
 }
+
+
+
+
+
+
+
+
+

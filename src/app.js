@@ -10,7 +10,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const {MESSAGE_ERROR, MESSAGE_SUCCESS} = require('../modulo/config.js');
 const http = require('http')
-const swaggerUi = require('swagger-ui-express')
+//const swaggerUi = require('swagger-ui-express')
 
 
 const app = express();
@@ -1013,15 +1013,174 @@ app.get('/v1/tipo_mensagem/:id', cors(), async function(request, response){
     response.json(message);
 }); 
 
+// ============== END-POINTS PARA MENSAGENS =============
 
+app.post('/v1/mensagem', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        // console.log(dadosBody);
+
+        if (JSON.stringify(dadosBody) != '{}') {
+            
+            const controllerMensagem = require('../controller/controllerMensagem.js');
+
+            const novoMensagem = await controllerMensagem.novaMensagem(dadosBody);
+
+            statusCode = novoMensagem.status;
+            message = novoMensagem.message;
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.get('/v1/mensagens', cors(), async function(request, response){
+
+    let statusCode;
+    let message;
+
+    //Import do arquivos controllerTamanhoPizza
+    const controllerMensagem = require('../controller/controllerMensagem.js');
+
+    //Retorna todos os alunos existentes no BD
+    const dadosMensagens = await controllerMensagem.listarMensagens();
+
+    //Valida se existe retorno de dados
+    if (dadosMensagens) {
+        //Status 200
+        statusCode = 200;
+        message = dadosMensagens;
+    } else {
+        //Status 404
+        statusCode = 404;
+        message = MESSAGE_ERROR.NOT_FOUND_DB;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.put('/v1/mensagem/:id', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+    let id = request.params.id;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+
+            if (id != '' && id != undefined) {
+                
+                dadosBody.id = id;
+
+                const controllerMensagem = require('../controller/controllerMensagem.js');
+
+                const attMensagem = await controllerMensagem.atualizarMensagem(dadosBody);
+
+                    statusCode = attMensagem.status;
+                    message = attMensagem.message;
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.REQUIRED_ID;
+            }
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+    } else {
+        statusCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.delete('/v1/mensagem/:id', cors(), jsonParser, async function(request, response){
+    let stautsCode;
+    let message;
+    let id = request.params.id;
+
+    if (id != '' && id != undefined) {
+        const controllerMensagem = require('../controller/controllerMensagem.js');
+
+        const excluirMessage = await controllerMensagem.excluirMensagem(id);
+
+        statusCode = excluirMessage.status;
+        message = excluirMessage.message;
+    } else {
+        stautsCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.get('/v1/mensagem/:id', cors(), async function(request, response){
+    let id = request.params.id;
+    let statusCode;
+    let message;
+
+    if (id != '' && id != undefined) {
+
+        //Import do arquivos controllerTamanhoPizza
+        const controllerMensagem = require('../controller/controllerMensagem.js');
+
+        //Retorna todos os alunos existentes no BD
+        const dadosMensagem = await controllerMensagem.buscarMensagem(id);
+
+        //Valida se existe retorno de dados
+        if (dadosMensagem) {
+            //Status 200
+            statusCode = 200;
+            message = dadosMensagem;
+        } else {
+            //Status 404
+            statusCode = 404;
+            message = MESSAGE_ERROR.NOT_FOUND_DB;
+        }
+    } else {
+        statusCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+}); 
 
 
 
 app.listen(8080, function(){
     console.log('Servidor aguardando requisições...')
 });
-
-
-
-
-
