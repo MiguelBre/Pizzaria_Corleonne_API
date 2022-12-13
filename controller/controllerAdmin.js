@@ -105,13 +105,38 @@ const excluirAdmin = async function(id){
     }
 }
 
+//Função para autenticar o usuário
+const autenticacao = async function(dadosAdmin){
 
+    //Import da biblioteca que gera e valida a autenticidade do JWT
+    const jwt = require('../JWT/jwt.js');
 
+    let dadosAdminJSON = {};
+
+    if(dadosAdmin.email == '' || dadosAdmin.email == undefined || dadosAdmin.senha == '' || dadosAdmin.senha == undefined){
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELDS};
+    } else {
+        const modelAdmin = require('../model/DAO/admin.js');
+
+        const dadosObtidos = await modelAdmin.autentication(dadosAdmin);
+
+        if (dadosObtidos) {
+            //Gera o token pelo jwt
+            let tokenUser = await jwt.createJWT(dadosObtidos.id);
+            dadosAdminJSON.token = tokenUser;
+            dadosAdminJSON.login = dadosObtidos;
+            return dadosAdminJSON;
+        } else {
+            return false;
+        }
+    }
+}
 
 module.exports = {
     listarAdmins,
     novoAdmin,
     atualizarAdmin,
     buscarAdmin,
-    excluirAdmin
+    excluirAdmin,
+    autenticacao
 }

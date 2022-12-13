@@ -105,7 +105,22 @@ const selectAdminByID = async function(id){
     }
 }
 
+const autentication = async function(dadosAdmin){
 
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+
+    let sql = `select cast(id as float) as id, nome, sobrenome from tbl_administrador 
+                where tbl_administrador.email = MD5('${dadosAdmin.email}') and tbl_administrador.senha = MD5('${dadosAdmin.senha}');`;
+
+    const rsAdmin = await prisma.$queryRawUnsafe(sql);
+
+    if (rsAdmin.length > 0) {
+        return rsAdmin;
+    } else {
+        return false;
+    }
+}
 
 
 module.exports = {
@@ -113,5 +128,6 @@ module.exports = {
     selectAllAdmins,
     updateAdmin,
     deleteAdmin,
-    selectAdminByID
+    selectAdminByID,
+    autentication
 }
