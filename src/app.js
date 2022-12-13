@@ -84,25 +84,15 @@ app.post('/v1/pizza', cors(), jsonParser, async function(request, response){
     let message;
     let headerContentType;
 
-    //Recebe um tipo de content-type que foi enviado no header da requisição
-        //application/json
     headerContentType = request.headers['content-type'];
 
-    // console.log(headerContentType);
-
-    //Validar se o content-type é do tipo application/json
     if (headerContentType == 'application/json') {
-        //Recebe do corpo da mensagem o conteúdo 
         let dadosBody = request.body;
 
-        //Realiza uma conversão de dados para conseguir comparar o json vazio
-            //O comando transforma o JSON em String
         if (JSON.stringify(dadosBody) != '{}') {
             
-            //Import do arquivo da controller de tamanho_pizza
             const controllerPizza = require('../controller/controllerPizza.js');
 
-            //Chama a função novoProduto da controller e encaminha os dados do Body
             const novaPizza = await controllerPizza.novaPizza(dadosBody);
 
                 statusCode = novaPizza.status;
@@ -112,7 +102,6 @@ app.post('/v1/pizza', cors(), jsonParser, async function(request, response){
             statusCode = 400;
             message = MESSAGE_ERROR.EMPTY_BODY;
         }
-
 
     } else {
         statsCode = 415;
@@ -855,6 +844,174 @@ app.post('/v1/admin/autenticacao', cors(), jsonParser, async function(request, r
     response.json(message)
 
 });
+
+// ============= END-POINTS TIPO_MENSAGEM ==============
+
+app.post('/v1/tipo_mensagem', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        // console.log(dadosBody);
+
+        if (JSON.stringify(dadosBody) != '{}') {
+            
+            const controllerTipoMensagem = require('../controller/controllerTipoMensagem.js');
+
+            const novoTipo = await controllerTipoMensagem.novoTipoMensagem(dadosBody);
+
+            statusCode = novoTipo.status;
+            message = novoTipo.message;
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.get('/v1/tipos_mensagem', cors(), async function(request, response){
+
+    let statusCode;
+    let message;
+
+    //Import do arquivos controllerTamanhoPizza
+    const controllerTipoMensagem = require('../controller/controllerTipoMensagem.js');
+
+    //Retorna todos os alunos existentes no BD
+    const dadosTipoMensagem = await controllerTipoMensagem.listarTiposMensagem();
+
+    //Valida se existe retorno de dados
+    if (dadosTipoMensagem) {
+        //Status 200
+        statusCode = 200;
+        message = dadosTipoMensagem;
+    } else {
+        //Status 404
+        statusCode = 404;
+        message = MESSAGE_ERROR.NOT_FOUND_DB;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.put('/v1/tipo_mensagem/:id', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+    let id = request.params.id;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+
+            if (id != '' && id != undefined) {
+                
+                dadosBody.id = id;
+
+                const controllerTipoMensagem = require('../controller/controllerTipoMensagem.js');
+
+                const novoTipoMensagem = await controllerTipoMensagem.atualizarTipoMensagem(dadosBody);
+
+                    statusCode = novoTipoMensagem.status;
+                    message = novoTipoMensagem.message;
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.REQUIRED_ID;
+            }
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.delete('/v1/tipo_mensagem/:id', cors(), jsonParser, async function(request, response){
+    let stautsCode;
+    let message;
+    let id = request.params.id;
+
+    if (id != '' && id != undefined) {
+        const controllerTipoMensagem = require('../controller/controllerTipoMensagem.js');
+
+        const excluirTipo = await controllerTipoMensagem.excluirTipoMensagem(id);
+
+        statusCode = excluirTipo.status;
+        message = excluirTipo.message;
+    } else {
+        stautsCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.get('/v1/tipo_mensagem/:id', cors(), async function(request, response){
+    let id = request.params.id;
+    let statusCode;
+    let message;
+
+    if (id != '' && id != undefined) {
+
+        //Import do arquivos controllerTamanhoPizza
+        const controllerTipoMensagem = require('../controller/controllerTipoMensagem.js');
+
+        //Retorna todos os alunos existentes no BD
+        const dadosTipoMensagem = await controllerTipoMensagem.buscarTipoMensagem(id);
+
+        //Valida se existe retorno de dados
+        if (dadosTipoMensagem) {
+            //Status 200
+            statusCode = 200;
+            message = dadosTipoMensagem;
+        } else {
+            //Status 404
+            statusCode = 404;
+            message = MESSAGE_ERROR.NOT_FOUND_DB;
+        }
+    } else {
+        statusCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    // console.log(message)
+
+    //Retorna os dados da API
+    response.status(statusCode);
+    response.json(message);
+}); 
+
+
 
 
 

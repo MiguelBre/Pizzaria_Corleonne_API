@@ -56,6 +56,24 @@ const buscarPizzaID = async function(id){
 
 }
 
+const novaPizza = async function(dadosPizza){
+
+    if(dadosPizza.nome == '' || dadosPizza.nome == undefined || dadosPizza.tamanho == '' || dadosPizza.tamanho == undefined || dadosPizza.tipo == '' || dadosPizza.tipo == undefined || dadosPizza.produto == '' || dadosPizza.produto == undefined){
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELDS};
+    } else {
+
+        const modelAdmin = require('../model/DAO/pizza.js');
+
+        const resultNA = await modelAdmin.insertAdmin(dadosPizza);
+
+        if (resultNA) {
+            return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM};
+        } else {
+            return {status: 500, message: MESSAGE_ERROR.INTERNAL_ERROR_DB};
+        }
+    }
+}
+
 module.exports = {
     listarPizzas,
     buscarPizzaID
