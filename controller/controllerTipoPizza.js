@@ -99,13 +99,6 @@ const buscarTipoPizza = async function(id){
     }
 }
 
-
-
-
-
-
-
-
 const listarTiposPizza = async function(){
 
     let dadosTiposPizzaJSON = {};

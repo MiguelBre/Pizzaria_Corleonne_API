@@ -68,12 +68,46 @@ const updateProduto = async function(dadosProduto){
     }
 }
 
+const deleteProduto = async function(id){
+    try{
 
+        const {PrismaClient} = require('@prisma/client');
+        const prisma = new PrismaClient();
+        
+        let sql = `DELETE FROM tbl_produto WHERE id = ${id};`;
 
+        const result = await prisma.$executeRawUnsafe (sql);
 
+        if (result) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch(error){
+        return false;
+    }
+}
+
+const selectProdutoByID = async function(id){
+
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+
+    let sql = `select cast(id as float) as id, nome, descricao, desconto FROM tbl_produto WHERE tbl_produto.id = ${id};`;
+    
+    const rsProduto = await prisma.$queryRawUnsafe(sql);
+
+    if (rsProduto.length > 0) {
+        return rsProduto;
+    } else {
+        return false;
+    }
+}
 
 module.exports = {
     insertProduto,
     selectAllProdutos,
-    updateProduto
+    updateProduto,
+    deleteProduto,
+    selectProdutoByID
 }

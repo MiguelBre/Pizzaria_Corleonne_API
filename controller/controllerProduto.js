@@ -61,8 +61,50 @@ const atualizarProduto = async function(dadosProduto){
     }
 }
 
+const excluirProduto = async function(id){
 
+    if (id != '' && id != undefined) {
 
+        const Produto = await buscarProduto(id);
+
+        if (Produto) {
+            const apagarProduto = require('../model/DAO/produto.js');
+
+            const result = await apagarProduto.deleteProduto(id);
+
+            if (result) {
+                return {status: 200, message: MESSAGE_SUCCESS.DELETE_ITEM};
+            } else {
+                return {status: 500, message: MESSAGE_ERROR.INTERNAL_ERROR_DB};
+            }
+        } else {
+            return {status: 404, message: MESSAGE_ERROR.NOT_FOUND_DB};
+        }
+    } else {
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID};
+    }
+}
+
+const buscarProduto = async function(id){
+
+    if (id != '' && id != undefined) {
+        
+        let dadosProdutoJSON = {};
+
+        const { selectProdutoByID } = require('../model/DAO/produto.js')
+
+        const dadosProduto = await selectProdutoByID(id);
+
+        if (dadosProduto) {
+            dadosProdutoJSON.tipo = dadosProduto;
+            return dadosProdutoJSON;
+        } else {
+            return false;
+        }
+    } else {
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID};
+    }
+}
 
 
 
@@ -72,5 +114,7 @@ const atualizarProduto = async function(dadosProduto){
 
 module.exports = {
     novoProduto,
-    listarProdutos
+    listarProdutos,
+    atualizarProduto,
+
 }
