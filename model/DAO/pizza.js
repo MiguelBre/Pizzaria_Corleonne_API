@@ -13,13 +13,13 @@ const selectAllPizzas = async function(){
 
     let sql = `select tbl_pizza.id as idPizza, tbl_produto.nome as nomeProduto, tbl_produto.descricao, tbl_pizza.imagem, tbl_tamanho_pizza.tamanho, tbl_tamanho_pizza.preco, tbl_tipo_pizza.tipo
                     from tbl_pizza
-                        inner join tbl_produto
+                        left join tbl_produto
                             on tbl_produto.id = tbl_pizza.id_produto
-                        inner join tbl_tipo_pizza
+                        left join tbl_tipo_pizza
                             on tbl_tipo_pizza.id = tbl_pizza.id_tipo
-                        inner join tbl_pizza_x_tamanho
+                        left join tbl_pizza_x_tamanho
                             on tbl_pizza.id = tbl_pizza_x_tamanho.id_pizza
-                        inner join tbl_tamanho_pizza
+                        left join tbl_tamanho_pizza
                             on tbl_tamanho_pizza.id = tbl_pizza_x_tamanho.id_tamanho
                 order by nomeProduto`;
 
@@ -63,13 +63,16 @@ const insertPizza = async function(dadosPizza){
 
     try{
 
+        const modelProduto = require('./produto.js')
+
         const { PrismaClient } = require('@prisma/client')
         const prisma = new PrismaClient()
 
-        let sql = `insert into tbl_pizza(imagem, id_produto, id_tipo)
-                    values('${dadosPizza.imagem}', '${dadosPizza.id_produto}', '${dadosPizza.id_tipo}')`;
+        let sql = `INSERT INTO tbl_produto(nome, descricao, desconto) VALUES ('${dadosPizza.nome}', '${dadosPizza.descricao}', ${dadosPizza.desconto});`;
+        let sql2 = `INSERT INTO tbl_pizza(imagem, id_produto, id_tipo) VALUES ('${dadosPizza.imagem}', '${await modelProduto.selectLastID()}', '${dadosPizza.id_tipo}');`
 
         const result = await prisma.$executeRawUnsafe (sql);
+        const result2 = await prisma.$executeRawUnsafe (sql2);
 
         if (result) {
             return true;
@@ -84,24 +87,6 @@ const insertPizza = async function(dadosPizza){
 
 }
 
-const selectLastID = async function(){
-
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-
-    //
-    let sql = `SELECT cast(id as FLOAT) as id FROM tbl_produto
-                    ORDER BY id desc limit 1`;
-
-    const rsPizza = await prisma.$queryRawUnsafe(sql);
-
-    //Verifica se o 'rsAlunos' possuí algum conteúdo, e se não tiver nada nela, a função retorna falso
-    if (rsAluno) {
-        return rsPizza[0].id;
-    } else {
-        return false;
-    }
-}
 
 
 
@@ -111,7 +96,8 @@ const selectLastID = async function(){
 
 module.exports = {
     selectAllPizzas,
-    selectPizzaByID
+    selectPizzaByID,
+    insertPizza
 }
 
 

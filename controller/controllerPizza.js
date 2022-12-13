@@ -5,7 +5,7 @@
  * Versão:          1.0
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-const { MESSAGE_ERROR } = require('../modulo/config.js');
+const { MESSAGE_ERROR, MESSAGE_SUCCESS } = require('../modulo/config.js');
 
 const listarPizzas = async function(){
 
@@ -58,13 +58,15 @@ const buscarPizzaID = async function(id){
 
 const novaPizza = async function(dadosPizza){
 
-    if(dadosPizza.nome == '' || dadosPizza.nome == undefined || dadosPizza.tamanho == '' || dadosPizza.tamanho == undefined || dadosPizza.tipo == '' || dadosPizza.tipo == undefined || dadosPizza.produto == '' || dadosPizza.produto == undefined){
+    if(dadosPizza.nome == '' || dadosPizza.nome == undefined || dadosPizza.descricao == '' || dadosPizza.descricao == undefined || dadosPizza.id_tipo == '' || dadosPizza.id_tipo == undefined){
         return {status: 400, message: MESSAGE_ERROR.REQUIRED_FIELDS};
     } else {
 
-        const modelAdmin = require('../model/DAO/pizza.js');
+        const modelPizza = require('../model/DAO/pizza.js');
 
-        const resultNA = await modelAdmin.insertAdmin(dadosPizza);
+        const resultNA = await modelPizza.insertPizza(dadosPizza);
+
+        // console.log(dadosPizza);
 
         if (resultNA) {
             return {status: 201, message: MESSAGE_SUCCESS.INSERT_ITEM};
@@ -76,7 +78,8 @@ const novaPizza = async function(dadosPizza){
 
 module.exports = {
     listarPizzas,
-    buscarPizzaID
+    buscarPizzaID,
+    novaPizza
 }
 
 
