@@ -9,7 +9,9 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const {MESSAGE_ERROR, MESSAGE_SUCCESS} = require('../modulo/config.js');
-const e = require('express');
+const http = require('http')
+const swaggerUi = require('swagger-ui-express')
+
 
 const app = express();
 
