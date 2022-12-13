@@ -645,6 +645,161 @@ app.get('/v1/produto/:id', cors(), async function(request, response){
     response.json(message);
 }); 
 
+// ========= END-POINTS ADMINISTRAÇÃO ============
+
+app.post('/v1/admin', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+
+    headerContentType = request.headers['content-type'];
+
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+            
+            const controllerAdmin = require('../controller/controllerAdmin.js');
+
+            const newAdmin = await controllerAdmin.novoAdmin(dadosBody);
+
+            statusCode = newAdmin.status;
+            message = newAdmin.message;
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.get('/v1/admins', cors(), async function(request, response){
+
+    let statusCode;
+    let message;
+
+    const controllerAdmin = require('../controller/controllerAdmin.js');
+
+    const dadosAdmins = await controllerAdmin.listarAdmins();
+
+    if (dadosAdmins) {
+        statusCode = 200;
+        message = dadosAdmins;
+    } else {
+        statusCode = 404;
+        message = MESSAGE_ERROR.NOT_FOUND_DB;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.put('/v1/admin/:id', cors(), jsonParser, async function(request, response){
+    let statusCode;
+    let message;
+    let headerContentType;
+    let id = request.params.id;
+
+    headerContentType = request.headers['content-type'];
+
+    if (headerContentType == 'application/json') {
+        let dadosBody = request.body;
+
+        if (JSON.stringify(dadosBody) != '{}') {
+
+            if (id != '' && id != undefined) {
+                
+                dadosBody.id = id;
+
+                const controllerAdmin = require('../controller/controllerAdmin.js');
+
+                const AttAdmin = await controllerAdmin.atualizarAdmin(dadosBody);
+
+                    statusCode = AttAdmin.status;
+                    message = AttAdmin.message;
+            } else {
+                statusCode = 400;
+                message = MESSAGE_ERROR.REQUIRED_ID;
+            }
+
+        } else {
+            statusCode = 400;
+            message = MESSAGE_ERROR.EMPTY_BODY;
+        }
+    } else {
+        statsCode = 415;
+        message = MESSAGE_ERROR.CONTENT_TYPE;
+    }
+
+    response.status(statusCode)
+    response.json(message)
+
+});
+
+app.delete('/v1/admin/:id', cors(), jsonParser, async function(request, response){
+    let stautsCode;
+    let message;
+    let id = request.params.id;
+
+    if (id != '' && id != undefined) {
+        const controllerAdmin = require('../controller/controllerAdmin.js');
+
+        const buscarAdmin = await controllerAdmin.buscarAdmin(id);
+
+        const excluirAdmin = await controllerAdmin.excluirAdmin(id);
+
+        statusCode = excluirAdmin.status;
+        message = excluirAdmin.message;
+    } else {
+        stautsCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
+
+app.get('/v1/admin/:id', cors(), async function(request, response){
+    let id = request.params.id;
+    let statusCode;
+    let message;
+
+    if (id != '' && id != undefined) {
+
+        const controllerAdmin = require('../controller/controllerAdmin.js');
+
+        //Retorna todos os alunos existentes no BD
+        const dadosAdmin = await controllerAdmin.buscarAdmin(id);
+
+        //Valida se existe retorno de dados
+        if (dadosAdmin) {
+            //Status 200
+            statusCode = 200;
+            message = dadosAdmin;
+        } else {
+            //Status 404
+            statusCode = 404;
+            message = MESSAGE_ERROR.NOT_FOUND_DB;
+        }
+    } else {
+        statusCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+}); 
+
+
 
 
 
