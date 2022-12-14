@@ -76,10 +76,42 @@ const novaPizza = async function(dadosPizza){
     }
 }
 
+const excluirPizza = async function(id){
+
+    if (id != '' && id != undefined) {
+        
+        // console.log(id);
+
+        const Pizza = await buscarPizzaID(id);
+
+        // console.log(Pizza);
+
+        if (Pizza) {
+            const apagarPizza = require('../model/DAO/pizza.js');
+
+            const result = await apagarPizza.deletePizza(id);
+
+            // console.log(result);
+
+            if (result) {
+                return {status: 200, message: MESSAGE_SUCCESS.DELETE_ITEM};
+            } else {
+                return {status: 500, message: MESSAGE_ERROR.INTERNAL_ERROR_DB};
+            }
+        } else {
+            return {status: 404, message: MESSAGE_ERROR.NOT_FOUND_DB};
+        }
+    } else {
+        return {status: 400, message: MESSAGE_ERROR.REQUIRED_ID};
+    }
+}
+
+
 module.exports = {
     listarPizzas,
     buscarPizzaID,
-    novaPizza
+    novaPizza,
+    excluirPizza
 }
 
 

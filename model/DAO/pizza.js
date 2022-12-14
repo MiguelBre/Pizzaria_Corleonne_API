@@ -40,13 +40,13 @@ const selectPizzaByID = async function(id){
     let sql =
     `select tbl_pizza.id as idPizza, tbl_produto.nome as nomeProduto, tbl_produto.descricao, tbl_pizza.imagem, tbl_tamanho_pizza.tamanho, tbl_tamanho_pizza.preco, tbl_tipo_pizza.tipo
                         from tbl_pizza
-                            inner join tbl_produto
+                            left join tbl_produto
                                 on tbl_produto.id = tbl_pizza.id_produto
-                            inner join tbl_tipo_pizza
+                            left join tbl_tipo_pizza
                                 on tbl_tipo_pizza.id = tbl_pizza.id_tipo
-                            inner join tbl_pizza_x_tamanho
+                            left join tbl_pizza_x_tamanho
                                 on tbl_pizza.id = tbl_pizza_x_tamanho.id_pizza
-                            inner join tbl_tamanho_pizza
+                            left join tbl_tamanho_pizza
                                 on tbl_tamanho_pizza.id = tbl_pizza_x_tamanho.id_tamanho
     where tbl_pizza.id = ${id};`;
     
@@ -84,7 +84,27 @@ const insertPizza = async function(dadosPizza){
         return false;
         
     }
+}
 
+const deletePizza = async function(id){
+    try{
+
+        const {PrismaClient} = require('@prisma/client');
+        const prisma = new PrismaClient();
+        
+        let sql = `DELETE FROM tbl_pizza_x_tamanho WHERE id_pizza = ${id};
+                    DELETE FROM tbl_pizza WHERE id = ${id};`;
+
+        const result = await prisma.$executeRawUnsafe (sql);
+
+        if (result) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch(error){
+        return false;
+    }
 }
 
 
@@ -97,7 +117,8 @@ const insertPizza = async function(dadosPizza){
 module.exports = {
     selectAllPizzas,
     selectPizzaByID,
-    insertPizza
+    insertPizza,
+    deletePizza
 }
 
 

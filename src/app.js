@@ -1179,7 +1179,26 @@ app.get('/v1/mensagem/:id', cors(), async function(request, response){
     response.json(message);
 }); 
 
+app.delete('/v1/pizza/:id', cors(), jsonParser, async function(request, response){
+    let stautsCode;
+    let message;
+    let id = request.params.id;
 
+    if (id != '' && id != undefined) {
+        const controllerPizza = require('../controller/controllerPizza.js');
+
+        const excluir = await controllerPizza.excluirPizza(id);
+
+        statusCode = excluir.status;
+        message = excluir.message;
+    } else {
+        stautsCode = 400;
+        message = MESSAGE_ERROR.REQUIRED_ID;
+    }
+
+    response.status(statusCode);
+    response.json(message);
+});
 
 app.listen(8080, function(){
     console.log('Servidor aguardando requisições...')
