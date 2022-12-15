@@ -21,7 +21,7 @@ const selectAllPizzas = async function(){
                             on tbl_pizza.id = tbl_pizza_x_tamanho.id_pizza
                         left join tbl_tamanho_pizza
                             on tbl_tamanho_pizza.id = tbl_pizza_x_tamanho.id_tamanho
-                order by nomeProduto`;
+                order by idPizza desc`;
 
     const rsPizzas = await prisma.$queryRawUnsafe(sql);
 
@@ -63,6 +63,8 @@ const insertPizza = async function(dadosPizza){
 
     try{
 
+        const modelPizzaTamanho = require('./pizza_tamanho.js')
+
         const modelProduto = require('./produto.js')
 
         const { PrismaClient } = require('@prisma/client')
@@ -71,18 +73,26 @@ const insertPizza = async function(dadosPizza){
         let sql = `INSERT INTO tbl_produto(nome, descricao, desconto) VALUES ('${dadosPizza.nome}', '${dadosPizza.descricao}', ${dadosPizza.desconto});`;
         let sql2 = `INSERT INTO tbl_pizza(imagem, id_produto, id_tipo) VALUES ('${dadosPizza.imagem}', '${await modelProduto.selectLastID()}', '${dadosPizza.id_tipo}');`
 
+
         const result = await prisma.$executeRawUnsafe (sql);
         const result2 = await prisma.$executeRawUnsafe (sql2);
 
-        if (result) {
-            return true;
+        if (result && result2) {
+            let sql3 = `INSERT INTO tbl_pizza_x_tamanho(id_pizza, id_tamanho) VALUES (${await modelPizzaTamanho.selectLastID()}, ${dadosPizza.id_tamanho})`;
+
+            console.log(sql3);
+
+            const result3 = await prisma.$executeRawUnsafe (sql3);
+            if (result3) {
+                return true;
+            } else {
+                return false
+            }
         } else {
             return false;
         }
     } catch(error){
-
         return false;
-        
     }
 }
 
@@ -92,12 +102,13 @@ const deletePizza = async function(id){
         const {PrismaClient} = require('@prisma/client');
         const prisma = new PrismaClient();
         
-        let sql = `DELETE FROM tbl_pizza_x_tamanho WHERE id_pizza = ${id};
-                    DELETE FROM tbl_pizza WHERE id = ${id};`;
+        let sql = `DELETE FROM tbl_pizza_x_tamanho WHERE id_pizza = ${id};`;
+        let sql2 = `DELETE FROM tbl_pizza WHERE id = ${id};`;
 
         const result = await prisma.$executeRawUnsafe (sql);
+        const result2 = await prisma.$executeRawUnsafe(sql2);
 
-        if (result) {
+        if (result || result2) {
             return true;
         } else {
             return false;
@@ -106,8 +117,6 @@ const deletePizza = async function(id){
         return false;
     }
 }
-
-
 
 
 

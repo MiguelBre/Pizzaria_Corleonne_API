@@ -53,10 +53,31 @@ const selectPizzaTamanho = async function(idPizza) {
     }
 }
 
+const selectLastID = async function(){
+
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+
+    //
+    let sql = `SELECT cast(id as FLOAT) as id FROM tbl_pizza
+                    ORDER BY id desc limit 1`;
+
+    const rsPizza = await prisma.$queryRawUnsafe(sql);
+
+    //Verifica se o 'rsAlunos' possuí algum conteúdo, e se não tiver nada nela, a função retorna falso
+    if (rsPizza) {
+        return rsPizza[0].id;
+    } else {
+        return false;
+    }
+}
+
 
 
 
 
 module.exports = {
-    insertPizzaTamanho
+    insertPizzaTamanho,
+    selectPizzaTamanho,
+    selectLastID
 }
